@@ -1,10 +1,14 @@
 # PDM
 
-This repository contains code to reproduce all simulation plots from the paper *Predictive Dendrites as a Foundation for Biological Learning*.
+This repository contains code to reproduce all simulation plots from the paper 
+*Predictive Dendrites as a Foundation for Biological Learning*.
 
 ## Repository structure
 
-Each subdirectory covers a specific figure or set of figures and has its own self-contained environment. Follow the README in that folder for installation and reproduction; do not install a single project-wide environment.
+Each subdirectory covers a specific figure or set of figures and has its own 
+self-contained environment. Follow the README in that folder for system 
+requirements, installation, reproduction, and instructions for use. Do not 
+install a single project-wide environment.
 
 | Directory | Figures |
 |---|---|
