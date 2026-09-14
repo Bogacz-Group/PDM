@@ -1,6 +1,9 @@
 jpc @ git+https://github.com/thebuckleylab/jpc.git@d698b51502b1e123c148cd8d682c8b7f474705f5
-numpy
-pandas
-matplotlib
-seaborn
-scikit-learn
+jax==0.5.2
+equinox==0.11.12
+optax==0.2.4
+numpy==2.2.6
+pandas==2.3.3
+matplotlib==3.10.9
+seaborn==0.13.2
+scikit-learn==1.6.1
