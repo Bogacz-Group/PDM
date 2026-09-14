@@ -40,10 +40,9 @@ This writes results under `results/` and figure PDFs next to those results
 takes 15–30 minutes. The toy-linear, toy-nonlinear, and Iris scripts typically
 take several hours to overnight.
 
-## 4. Instructions for use
+## 4. Command-line options
 
-To change training hyperparameters, pass flags (the values below are the
-defaults and reproduce the paper's results):
+XOR and the toy tasks are generated in the scripts; Iris is loaded from scikit-learn. To use different training settings, pass flags (the values below are the defaults and reproduce the paper's results):
 
 ```bash
 python train_xor.py --n_seeds 5 --n_train_iters 1000 --width 2 --n_hidden 1 --param_lr 5e-3

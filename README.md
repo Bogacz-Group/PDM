@@ -7,7 +7,7 @@ This repository contains code to reproduce all simulation plots from the paper
 
 Each subdirectory covers a specific figure or set of figures and has its own 
 self-contained environment. Follow the README in that folder for system 
-requirements, installation, reproduction, and instructions for use. Do not 
+requirements, installation, reproduction, and command-line options. Do not 
 install a single project-wide environment.
 
 | Directory | Figures |
