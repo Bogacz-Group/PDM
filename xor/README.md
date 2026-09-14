@@ -33,6 +33,8 @@ This writes `plots/firing_rate_xor.pdf` (Figure 3c) and `plots/spiking_xor.pdf`
 without retraining, run only the two `plot_*.py` scripts. The expected run time 
 on a normal desktop CPU is typically 3–5 minutes.
 
+## 4. Instructions for use
+
 To change training hyperparameters, pass flags (the values below are the 
 defaults and reproduce the paper's results):
 
