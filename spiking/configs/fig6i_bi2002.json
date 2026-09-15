@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "panel": "Fig. 6i",
+  "dataset": "Bi and Wang (2002), Fig. 3",
+  "source_notebook": "fit_stdp_data_OptunaSearch_Bi2002.ipynb",
+  "selection": "best configuration printed by the restored OptunaSearch study",
+  "weighting": "legacy_observation_index_variance",
+  "parameters": {
+    "transmission_delay_ms": 3.003219049874547,
+    "decay_rate": 0.09832289732846322,
+    "plasticity_threshold": 0.2289279077211322,
+    "learning_rate": 0.3412298607505473,
+    "initial_weight": 0.7286125771004283
+  }
+}

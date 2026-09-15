@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "panel": "Fig. 6j",
+  "dataset": "Woodin, Ganguly and Poo (2003), Fig. 2",
+  "source_notebook": "fit_stdp_data_OptunaSearch_Melanie2003.ipynb",
+  "selection": "best configuration printed by the restored OptunaSearch study",
+  "weighting": "legacy_observation_index_variance",
+  "parameters": {
+    "transmission_delay_ms": 4.992491557428629,
+    "decay_rate": 0.024879461150547056,
+    "plasticity_threshold": -0.0686892325661495,
+    "learning_rate": 0.4564539181420359,
+    "initial_weight": 0.4313814751057967
+  }
+}

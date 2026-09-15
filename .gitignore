@@ -1,6 +1,15 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+.pytest_cache/
+.ruff_cache/
+.radas/
 .venv/
 venv/
 .DS_Store
+spiking/generated/
+spiking/results/
+spiking/plots/
+xor/results/supplementary_figure3c.csv
+xor/plots/supplementary_figure3c.pdf
+xor/plots/supplementary_figure3c.svg
