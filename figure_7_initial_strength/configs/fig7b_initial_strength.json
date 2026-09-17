@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "panel": "Fig. 7b",
+  "dataset": "Bi and Poo (1998), Fig. 5",
+  "source_notebook": "experiments/spiking/fit_stdp_data_initial_w.ipynb",
+  "selection": "best configuration printed by the restored OptunaSearch study",
+  "objective": "unweighted sum of squared errors",
+  "search_space_variant": "legacy_notebook",
+  "parameters": {
+    "model_initial_weight_start": 0.0841449784793923,
+    "model_initial_weight_range": 0.6515770896337575,
+    "transmission_delay_ms": 6.7220950525403484,
+    "decay_rate": 0.4385945612789581,
+    "plasticity_threshold": -0.27095425772257387,
+    "learning_rate": 0.13087424482121832
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "paper_panels": ["Figure 7a", "Figure 7b"],
+  "source_repository": "https://github.com/YuhangSong/predictive_dendrite",
+  "source_revision": "370b8daebcd6d52e37075f362f29e3a6c59e1ca3",
+  "sources": {
+    "Figure 7a": "experiments/spiking/stdp_dw.ipynb",
+    "Figure 7b": "experiments/spiking/fit_stdp_data_initial_w.ipynb"
+  },
+  "data": {
+    "positive_spiking.csv": "Digitized filled-circle condition from Bi and Poo (1998), Fig. 5; pre-post interval +5 ms",
+    "negative_spiking.csv": "Digitized cross condition from Bi and Poo (1998), Fig. 5; post-pre interval -6 ms"
+  },
+  "search_space_note": "The source notebook samples model_initial_weight_range from [0.5, 2.0]; Methods Section H states [0.0, 0.3]. Both variants are exposed and the source-notebook variant is the default.",
+  "public_orchestrator": {
+    "repository": "https://github.com/YuhangSong/mini-radas",
+    "commit": "8314d91b773db5148b0a90a8442f549e367e9cfb"
+  }
+}

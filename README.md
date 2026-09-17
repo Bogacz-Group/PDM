@@ -12,17 +12,8 @@ install a single project-wide environment.
 
 | Directory | Figures |
 |---|---|
-| [`xor/`](xor/) | Figures 3c–d (firing-rate and spiking XOR) and Supplementary Figure 3c (firing-rate weight trajectories) |
-| [`spiking/`](spiking/) | Figures 5b–c, 6a–j, 7a–b, and Supplementary Figure 3d |
+| [`xor/`](xor/) | Figures 3c–d (firing-rate and spiking XOR) |
 | [`supplementary_firing_rate/`](supplementary_firing_rate/) | Supplementary Figures 2 (XOR), 4 (linear and nonlinear toy tasks), and 5 (Iris) |
-
-Figure 5a is a conceptual schematic rather than a numerical experiment, so it
-does not have a reproduction script.
-
-The machine-readable [`migration_manifest.json`](migration_manifest.json)
-pins the original analysis repository to commit
-`370b8daebcd6d52e37075f362f29e3a6c59e1ca3` and records the source path for
-every migrated panel.
 
 ## Getting started
 
@@ -41,5 +32,4 @@ If you use this code, please cite:
 
 ## License
 
-This project is released under the MIT License. See [`LICENSE`](LICENSE) for
-details.
+This project is released under the Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) licence.

@@ -1,85 +1,43 @@
 # XOR experiments
 
-This folder reproduces Figures 3c–d and the firing-rate weight trajectories in
-Supplementary Figure 3c.
-
-| Paper panel | Numerical entry point | Plotting entry point |
-|---|---|---|
-| Figure 3c | `firing_rate_xor.py` | `plot_firing_rate_xor.py` |
-| Figure 3d | `spiking_xor.py` | `plot_spiking_xor.py` |
-| Supplementary Figure 3c | `weight_trajectories.py` | `plot_weight_trajectories.py` |
-
-The original notebook path and pinned source revision are recorded in
-[`../migration_manifest.json`](../migration_manifest.json).
+This folder reproduces Figures 3c–d: firing-rate and spiking predictive dendrite 
+networks trained on XOR.
 
 ## 1. System requirements
 
-- 64-bit Linux and Python 3.11.14.
-- A CPU is sufficient; no GPU is required.
-- Exact package versions are pinned in [`requirements.txt`](requirements.txt),
-  including public
-  [`mini-radas`](https://github.com/YuhangSong/mini-radas) at commit
-  `8314d91b773db5148b0a90a8442f549e367e9cfb`.
+- **OS:** macOS or Linux. Windows should work with the same Python packages; use the Windows venv activation command below.
+- **Python:** 3.10 (tested on 3.10.18). 3.11 should also work. Dependencies in `requirements.txt`.
+- **Hardware:** laptop CPU.
 
 ## 2. Installation
 
 ```bash
-cd PDM/xor
-python3.11 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-cd ..
+cd xor
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 ```
-
-Estimated installation time: **10–20 minutes**. To verify the installation
-(typically **under 1 minute**), run from the repository root:
-
-```bash
-python -m pytest xor/tests -q
-```
+This should take ~2 minutes on a standard laptop.
 
 ## 3. Reproduction
 
-Run commands from the repository root with the environment activated.
-
-| Panel | Commands | Main output | Estimated runtime |
-|---|---|---|---|
-| Figure 3c | `python xor/firing_rate_xor.py`<br>`python xor/plot_firing_rate_xor.py` | `xor/results/firing_rate.csv`, `xor/plots/firing_rate_xor.pdf` | 2–10 min + under 1 min for plotting |
-| Figure 3d | `python xor/spiking_xor.py`<br>`python xor/plot_spiking_xor.py` | `xor/results/spiking.csv`, `xor/plots/spiking_xor.pdf` | 2–10 min + under 1 min for plotting |
-| Supplementary Figure 3c | `python spiking/run_with_radas.py supp3c --seed 0` | CSV, trials, PDF/SVG, and metadata under `spiking/generated/radas/supp3c/<run-id>/` | 1–10 min |
-
-The direct sequential alternative for Supplementary Figure 3c is:
-
 ```bash
-python xor/weight_trajectories.py
-python xor/plot_weight_trajectories.py
+python firing_rate_xor.py
+python spiking_xor.py
+python plot_firing_rate_xor.py
+python plot_spiking_xor.py
 ```
 
-These write `xor/results/supplementary_figure3c.csv` and
-`xor/plots/supplementary_figure3c.{pdf,svg}`; estimated runtimes are **1–10
-minutes** and **under 1 minute**, respectively.
-
-To replot the committed Figure 3 data, run only the two `plot_*_xor.py`
-commands above.
+This writes `plots/firing_rate_xor.pdf` (Figure 3c) and `plots/spiking_xor.pdf` 
+(Figure 3d). To regenerate the figures from the committed CSVs in `results/` 
+without retraining, run only the two `plot_*.py` scripts. The expected run time 
+on a normal desktop CPU is typically 3–5 minutes.
 
 ## 4. Command-line options
 
+The XOR data are generated in the scripts. To use different training settings, pass flags (the values below are the defaults and reproduce the paper's results):
+
 ```bash
-# Change training settings for Figures 3c–d
-python xor/firing_rate_xor.py \
-  --n-epochs 500 --num-seeds 8 --hidden-size 64 --lr 0.1
-python xor/spiking_xor.py \
-  --n-steps 20 --n-repeats 10 --hidden-size 128 --theta 0.4
-
-# Change the Supplementary Figure 3c grid and learning settings
-python xor/weight_trajectories.py \
-  --grid-min -1 --grid-max 1 --grid-step 0.5 \
-  --learning-rate 0.05 --num-dataset-iterations 128 --seed 7
-
-# Reduced mini-radas run
-python spiking/run_with_radas.py supp3c --quick --seed 7
+python firing_rate_xor.py --n-epochs 500 --num-seeds 8 --hidden-size 64 --lr 0.1
+python spiking_xor.py --n-steps 20 --n-repeats 10 --hidden-size 128 --theta 0.4
 ```
-
-The source experiment uses 128 whole-dataset optimizer steps, equivalent to
-512 sample contributions; the CSV records both counts. Every entry point
-supports `--help` for the full option list.

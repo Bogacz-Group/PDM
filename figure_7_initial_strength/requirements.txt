@@ -1,0 +1,17 @@
+numpy==2.2.6
+pandas==2.3.3
+matplotlib==3.10.7
+seaborn==0.13.2
+scipy==1.16.2
+torch==2.9.0
+ray==2.53.0
+pyarrow==22.0.0
+optuna==4.5.0
+pydantic==2.12.3
+tqdm==4.67.1
+ipykernel==7.0.1
+ipywidgets==8.1.7
+plotly==6.4.0
+nbformat==5.10.4
+pytest==8.4.2
+radas @ git+https://github.com/YuhangSong/mini-radas.git@8314d91b773db5148b0a90a8442f549e367e9cfb
