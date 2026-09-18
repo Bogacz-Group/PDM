@@ -1,9 +1,3 @@
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.ruff_cache/
-.radas/
-.venv/
 generated/
 results/
 plots/

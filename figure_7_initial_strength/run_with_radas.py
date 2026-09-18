@@ -211,7 +211,7 @@ async def run(args: argparse.Namespace) -> dict[str, Path]:
         from radas import run_experiment
     except ImportError as exc:  # pragma: no cover
         raise RuntimeError(
-            "Install requirements.txt, including public mini-radas"
+            "Install requirements-search.txt, which pins public mini-radas"
         ) from exc
     source_hash = validate_mini_radas(radas_module, run_experiment)
     parameter_space, tune_config = build_search(args, count)

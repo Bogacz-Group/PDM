@@ -186,7 +186,9 @@ def run_optuna_fit(
     try:
         import optuna
     except ImportError as exc:  # pragma: no cover
-        raise RuntimeError("Fresh fitting requires Optuna") from exc
+        raise RuntimeError(
+            "Fresh fitting requires Optuna; install requirements-search.txt."
+        ) from exc
     bounds = search_bounds(search_space)
 
     def objective(trial: Any) -> float:

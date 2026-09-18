@@ -1,14 +1,15 @@
 # Figure 7: dependence on initial synaptic strength
 
-This self-contained folder reproduces Figure 7a and 7b. Source notebooks and
-the pinned migration revision are recorded in [`provenance.json`](provenance.json).
+This self-contained folder reproduces Figure 7a and 7b. The sources at
+predictive_dendrite commit
+[`370b8da`](https://github.com/YuhangSong/predictive_dendrite/commit/370b8daebcd6d52e37075f362f29e3a6c59e1ca3)
+are `experiments/spiking/stdp_dw.ipynb` (7a) and
+`experiments/spiking/fit_stdp_data_initial_w.ipynb` (7b).
 
 ## 1. System requirements
 
-Tested on 64-bit Linux with Python 3.11.14. A CPU is sufficient. Exact Python
-dependencies are pinned in [`requirements.txt`](requirements.txt), including
-the public [`mini-radas`](https://github.com/YuhangSong/mini-radas) source at
-commit `8314d91b773db5148b0a90a8442f549e367e9cfb`.
+Tested on 64-bit Linux with Python 3.11.14. A CPU is sufficient. Minimal Python
+dependencies are pinned in [`requirements.txt`](requirements.txt).
 
 ## 2. Installation
 
@@ -20,7 +21,20 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-Installation typically takes 10–20 minutes.
+Installation typically takes 5–10 minutes.
+
+The reported figures do not require radas. To repeat the optional fresh
+parameter search, install [`requirements-search.txt`](requirements-search.txt)
+in the same environment:
+
+```bash
+python -m pip install -r requirements-search.txt
+```
+
+This optional file pins the public
+[`mini-radas`](https://github.com/YuhangSong/mini-radas) repository. Its Python
+distribution and import name is `radas`; allow another 10–20 minutes to install
+the optional search stack.
 
 ## 3. Reproduction
 
@@ -31,7 +45,7 @@ python figure7.py
 # Figure 7b: evaluate the best configuration recorded by the source notebook
 python fit_initial_strength.py
 
-# Figure 7b: repeat the complete seeded 1,000-trial search
+# Figure 7b: optionally repeat the complete seeded 1,000-trial search
 python run_with_radas.py --seed 0
 ```
 
@@ -39,12 +53,6 @@ The first two commands write CSV/JSON data and PDF/SVG plots under `results/`,
 `plots/`, and `generated/fig7b_fit/`; each typically finishes in 1–5 minutes.
 The complete search writes its trial table, best-fit outputs, plots, and run
 metadata under `generated/radas/<run-id>/` and may take 1–12 hours.
-
-Run the fast test suite with:
-
-```bash
-python -m pytest tests -q
-```
 
 ## 4. Command-line options
 
@@ -59,7 +67,7 @@ python run_with_radas.py --quick --seed 7
 # Use the model-weight interval printed in Methods Section H
 python run_with_radas.py --search-space manuscript --seed 0
 
-# Replot Figure 7a from an existing CSV
+# Replot Figure 7a after generating its local CSV once
 python figure7.py --action plot --results results/figure7a.csv
 ```
 

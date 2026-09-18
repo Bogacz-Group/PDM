@@ -168,7 +168,7 @@ def _load_tune() -> Any:
         from ray import tune
     except ImportError as exc:  # pragma: no cover - installation dependent
         raise RuntimeError(
-            "Ray Tune is required; install this directory's requirements.txt."
+            "Ray Tune is required; install requirements-search.txt."
         ) from exc
     return tune
 
@@ -406,7 +406,7 @@ async def run(args: argparse.Namespace) -> dict[str, Path]:
         from radas import run_experiment
     except ImportError as exc:  # pragma: no cover - installation dependent
         raise RuntimeError(
-            "mini-radas is not installed; install this directory's requirements.txt."
+            "mini-radas is not installed; install requirements-search.txt first."
         ) from exc
     source_sha256 = validate_mini_radas(radas_module, run_experiment)
     spec = build_experiment_spec(profile, args.seed)

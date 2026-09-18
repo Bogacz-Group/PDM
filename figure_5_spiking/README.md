@@ -1,8 +1,9 @@
 # Figure 5: spiking predictive dendrites
 
 This directory independently reproduces the numerical panels in Figure 5b-c.
-Figure 5a is a conceptual schematic. Source provenance is recorded in
-[`provenance.json`](provenance.json).
+Figure 5a is a conceptual schematic. The source is
+`experiments/spiking/basics.ipynb` at predictive_dendrite commit
+[`370b8da`](https://github.com/YuhangSong/predictive_dendrite/commit/370b8daebcd6d52e37075f362f29e3a6c59e1ca3).
 
 ## 1. System requirements
 
@@ -27,17 +28,16 @@ Installation typically takes 5-10 minutes.
 python figure5.py
 ```
 
-The command writes numerical data and metadata to `results/`, and Figure 5b-c
-as PDF and SVG files to `plots/`. Expected runtime is 1-3 minutes.
+The command writes the local files `results/figure5.{csv,json}` and Figure
+5b-c as PDF and SVG files under `plots/`. These generated outputs are ignored
+by Git. Expected runtime is 1-3 minutes.
 
-To rerender existing results without rerunning the simulation:
+After running the command once, rerender its local CSV without repeating the
+simulation:
 
 ```bash
 python figure5.py --action plot
 ```
-
-Run the tests with `python -m unittest discover -s tests -v` (normally under
-one minute).
 
 ## 4. Command-line options
 

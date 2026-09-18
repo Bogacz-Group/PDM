@@ -21,11 +21,10 @@ import pandas as pd
 
 
 HERE = Path(__file__).resolve().parent
-REPOSITORY_ROOT = HERE.parent
-if str(REPOSITORY_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPOSITORY_ROOT))
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 
-from figure_6_stdp import fit_stdp  # noqa: E402
+import fit_stdp  # noqa: E402
 
 
 MINI_RADAS_COMMIT = "8314d91b773db5148b0a90a8442f549e367e9cfb"
@@ -144,7 +143,7 @@ def build_search(args: argparse.Namespace, profile: SearchProfile) -> tuple[Any,
         from ray.tune.search.optuna import OptunaSearch
     except ImportError as exc:  # pragma: no cover - installation dependent
         raise RuntimeError(
-            "Ray Tune and Optuna are required; install requirements.txt first."
+            "Ray Tune and Optuna are required; install requirements-search.txt."
         ) from exc
 
     search = OptunaSearch(metric="objective", mode="min", seed=args.seed)
@@ -300,7 +299,7 @@ async def run(args: argparse.Namespace) -> dict[str, Path]:
         from radas import run_experiment
     except ImportError as exc:  # pragma: no cover - installation dependent
         raise RuntimeError(
-            "mini-radas is not installed; install requirements.txt first."
+            "mini-radas is not installed; install requirements-search.txt first."
         ) from exc
     source_sha256 = validate_mini_radas(radas_module, run_experiment)
     tune_config, param_space = build_search(args, profile)
@@ -317,7 +316,7 @@ async def run(args: argparse.Namespace) -> dict[str, Path]:
     np.random.seed(args.seed)
     original_directory = Path.cwd()
     try:
-        os.chdir(REPOSITORY_ROOT)
+        os.chdir(HERE)
         result = await run_experiment(
             user_name=args.user_name,
             trainable=fit_stdp.stdp_fit_trainable,

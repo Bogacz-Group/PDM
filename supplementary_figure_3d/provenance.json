@@ -1,8 +1,0 @@
-{
-  "source_repository": "https://github.com/YuhangSong/predictive_dendrite",
-  "source_commit": "370b8daebcd6d52e37075f362f29e3a6c59e1ca3",
-  "panel": "Supplementary Figure 3d",
-  "source_paths": [
-    "experiments/spiking/simulation_features.ipynb"
-  ]
-}

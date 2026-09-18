@@ -20,13 +20,22 @@ from typing import Any, Callable, Mapping, Sequence
 import numpy as np
 import pandas as pd
 
-from plot_weight_trajectories import plot_trajectories
-from weight_trajectories import (
-    CSV_COLUMNS,
-    firing_rate_trajectory_trainable,
-    grid_values,
-    trajectory_rows,
-)
+try:
+    from .plot_weight_trajectories import plot_trajectories
+    from .weight_trajectories import (
+        CSV_COLUMNS,
+        firing_rate_trajectory_trainable,
+        grid_values,
+        trajectory_rows,
+    )
+except ImportError:  # Support ``python run_with_radas.py`` from any directory.
+    from plot_weight_trajectories import plot_trajectories
+    from weight_trajectories import (
+        CSV_COLUMNS,
+        firing_rate_trajectory_trainable,
+        grid_values,
+        trajectory_rows,
+    )
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_STORAGE = HERE / "generated" / "radas_storage"
@@ -297,7 +306,9 @@ async def run(args: argparse.Namespace) -> dict[str, Path]:
         from radas import run_experiment
         from ray import tune
     except ImportError as exc:  # pragma: no cover - installation dependent
-        raise RuntimeError("Install this directory's requirements.txt first") from exc
+        raise RuntimeError(
+            "Install this directory's requirements-search.txt first"
+        ) from exc
     source_sha256 = validate_mini_radas(radas_module, run_experiment)
     values = profile_grid(profile)
     param_space = {

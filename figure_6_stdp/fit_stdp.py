@@ -289,7 +289,7 @@ def run_optuna_fit(
         import optuna
     except ImportError as exc:  # pragma: no cover - environment dependent
         raise RuntimeError(
-            "Fresh fitting requires Optuna; install requirements.txt first."
+            "Fresh fitting requires Optuna; install requirements-search.txt."
         ) from exc
     sampler = optuna.samplers.TPESampler(seed=seed)
     study = optuna.create_study(direction="minimize", sampler=sampler)

@@ -7,7 +7,7 @@
 
 These are digitized points from Bi and Wang (2002), Fig. 3, and Woodin,
 Ganguly and Poo (2003), Fig. 2. The files were copied without numerical
-alteration from the pinned source revision in `provenance.json`.
+alteration from predictive_dendrite commit `370b8da`.
 
 The original fits weight residuals by variance over neighboring observations;
 the alternative Methods interpretation uses observations strictly within
