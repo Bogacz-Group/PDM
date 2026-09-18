@@ -42,7 +42,7 @@ typically 10–20 minutes.
 
 ## 3. Reproduction
 
-Run these commands from `figure_6_stdp/` with the environment activated:
+Run these commands from `spike_timing_dependent_plasticity/` with the environment activated:
 
 | Panels | Command | Output | Estimated runtime |
 | --- | --- | --- | --- |
