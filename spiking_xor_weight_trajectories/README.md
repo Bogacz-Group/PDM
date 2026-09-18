@@ -1,9 +1,10 @@
-# Supplementary Figure 3c
+# Supplementary Figure 3d
 
-This directory reproduces the firing-rate XOR weight trajectories in
-Supplementary Figure 3c. The source is
-`experiments/learn/XOR_record_wf_field.ipynb` at predictive_dendrite commit
-[`370b8da`](https://github.com/YuhangSong/predictive_dendrite/commit/370b8daebcd6d52e37075f362f29e3a6c59e1ca3).
+This directory reproduces the spiking XOR weight trajectories in
+Supplementary Figure 3d. The sources at predictive_dendrite commit
+[`370b8da`](https://github.com/YuhangSong/predictive_dendrite/commit/370b8daebcd6d52e37075f362f29e3a6c59e1ca3)
+are `simulation_features.ipynb`, `simulation_features.py`, and
+`simulation_XOR.py`, all under `experiments/spiking/`.
 
 ## 1. System requirements
 
@@ -13,7 +14,7 @@ Supplementary Figure 3c. The source is
 ## 2. Installation
 
 ```bash
-cd PDM/supplementary_figure_3c
+cd PDM/spiking_xor_weight_trajectories
 python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -35,13 +36,11 @@ python -m pip install -r requirements-search.txt
 Run the complete 81-condition grid sequentially:
 
 ```bash
-python weight_trajectories.py
-python plot_weight_trajectories.py
+python supplementary_figure3d.py
 ```
 
-This writes `results/supplementary_figure3c.csv` and
-`plots/supplementary_figure3c.{pdf,svg}`. Estimated numerical runtime:
-**1–10 minutes**; plotting takes **under 1 minute**.
+It writes `results/supplementary_figure3d.csv` and
+`plots/supplementary_figure3d.{pdf,svg}`. Estimated runtime: **15–60 minutes**.
 
 The optional mini-radas equivalent is:
 
@@ -55,11 +54,12 @@ It writes trajectories, a trial table, PDF/SVG plots, and run metadata under
 ## 4. Command-line options
 
 ```bash
-python weight_trajectories.py \
-  --grid-min -1 --grid-max 1 --grid-step 0.5 \
-  --learning-rate 0.05 --num-dataset-iterations 128 --seed 7
+python supplementary_figure3d.py \
+  --initial-wf1 -0.5 --initial-wf2 0.5 \
+  --num-dataset-iterations 16 --seed 7
 python run_with_radas.py --quick --seed 7
 ```
 
-The source uses 128 whole-dataset optimizer steps, equivalent to 512 sample
-contributions; both counts are recorded. All entry points support `--help`.
+`dataset_iteration` records completed passes (`1`–`64`) and
+`source_iteration_index` retains the notebook labels (`0`–`63`). All entry
+points support `--help`.

@@ -21,7 +21,8 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 
 # Support both ``python fit_stdp.py`` and
-# ``python -m figure_6_stdp.fit_stdp`` without installing this package.
+# ``python -m spike_timing_dependent_plasticity.fit_stdp`` without installing
+# this package.
 if __package__:
     from .model import stdp_single
 else:  # pragma: no cover - the CLI smoke test covers this import route
