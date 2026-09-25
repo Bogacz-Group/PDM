@@ -1,4 +1,4 @@
-# Spike-triplet plasticity
+# Figure 7: Spike-triplet plasticity
 
 This folder contains the MATLAB code and experimental data used to fit the Predictive Dendrites Model to spike-pair and spike-triplet plasticity data shown in the manuscript.
 
