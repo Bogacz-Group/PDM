@@ -1,6 +1,8 @@
 # Contrastive PDM
 
-This folder reproduces Figure 4a and Supplementary Figure 6: standard and contrastive predictive dendrite models, compared with two backpropagation baselines, on MNIST and CIFAR-10.
+This folder reproduces Figure 4a and Supplementary Figure 6, comparing standard 
+and contrastive predictive dendrite models with two backpropagation baselines, 
+on MNIST and CIFAR-10 classification.
 
 The training code has been adapted and extended from
 [Supervised-Predictive-Entropy-Maximization](https://github.com/BariscanBozkurt/Supervised-Predictive-Entropy-Maximization).
@@ -37,6 +39,7 @@ The script reads `Simulations/Results/`. For each model it keeps the learning-ra
 
 - `Fig4a_{MNIST,CIFAR10}_test_error.pdf` and `Fig4a_legend.pdf`
 - `SuppFig6_{MNIST,CIFAR10}_test_error.pdf` and `SuppFig6_legend.pdf`
+
 To retrain the runs those figures are drawn from, from `Simulations/`:
 
 ```bash
