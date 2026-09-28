@@ -7,12 +7,13 @@ This repository contains code to reproduce all simulation plots from the paper
 
 Each subdirectory covers a specific figure or set of figures and has its own 
 self-contained environment. Follow the README in that folder for system 
-requirements, installation, reproduction, and command-line options. Do not 
-install a single project-wide environment.
+requirements, installation, reproduction, and where applicable command-line 
+options. Do not install a single project-wide environment.
 
 | Directory | Figures |
 |---|---|
 | [`xor/`](xor/) | Figures 3c–d (firing-rate and spiking XOR) |
+| [`contrastive_pdm/`](contrastive_pdm/) | Figure 4a and Supplementary Figure 6 (contrastive predictive dendrite model on MNIST and CIFAR-10) |
 | [`spiking_predictive_dendrites/`](spiking_predictive_dendrites/) | Figure 5b–c (spiking predictive-dendrite dynamics and parameter effects) |
 | [`spike_timing_dependent_plasticity/`](spike_timing_dependent_plasticity/) | Figure 6 (spike-timing-dependent plasticity dynamics, analytic result, and experimental-data fits) |
 | [`initial_synaptic_strength/`](initial_synaptic_strength/) | Figure 7a-b (effect of initial synaptic strength on spike-timing-dependent plasticity) |
