@@ -1,0 +1,57 @@
+{
+  "experiment_name": "CPEP_FullClamp_MNIST_lrbase_nlr0.6_bs20_ep15_arch784x500x10_relu",
+  "run_id": "20260924_181200",
+  "method": "ContrastivePredictiveErrorPropagationFullClamp",
+  "dataset": "MNIST",
+  "lr_config_idx": 1,
+  "lr_config_label": "base",
+  "n_validation": 10000,
+  "n_train_after_split": 50000,
+  "validation_split_seed": 0,
+  "n_trials": 5,
+  "seed_list": [
+    0,
+    10,
+    20,
+    30,
+    40
+  ],
+  "activation": "relu",
+  "use_gating": false,
+  "architecture": [
+    784,
+    500,
+    10
+  ],
+  "lambda_": 1.0,
+  "epsilon": 0.01,
+  "gamma_forward": 0.5,
+  "gamma_backward": 0.5,
+  "lr_start_ff": [
+    0.05,
+    0.03
+  ],
+  "lr_start_fb": [
+    null,
+    0.03
+  ],
+  "neural_lr_start": 0.6,
+  "neural_lr_stop": 0.02,
+  "neural_lr_rule": "divide_by_slow_loop_index",
+  "neural_lr_decay_multiplier": 0.01,
+  "neural_dynamic_iterations_nudged": 10,
+  "neural_dynamic_iterations_free": 30,
+  "weight_decay": false,
+  "n_epochs": 15,
+  "batch_size": 20,
+  "normalization_mean": [
+    0.0
+  ],
+  "normalization_std": [
+    1.0
+  ],
+  "device": "xla:0",
+  "torch_version": "2.9.0+cpu",
+  "torchvision_version": "0.24.0+cpu",
+  "note": "Fully clamped nudged phase: output layer is clamped to the one-hot label instead of weak beta nudging."
+}

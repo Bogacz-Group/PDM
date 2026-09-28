@@ -1,0 +1,42 @@
+{
+  "run_id": "20260613_161100",
+  "experiment_name": "BP_CIFAR10_relu_sgd_lr1e-04_wd0e+00_bs20_ep15_arch3072x1000x10",
+  "method": "backpropagation",
+  "dataset": "CIFAR10",
+  "n_trials": 5,
+  "seed_list": [
+    0,
+    10,
+    20,
+    30,
+    40
+  ],
+  "architecture": [
+    3072,
+    1000,
+    10
+  ],
+  "n_epochs": 15,
+  "batch_size": 20,
+  "hidden_activation": "relu",
+  "optimizer_name": "sgd",
+  "lr": 0.0001,
+  "weight_decay": 0.0,
+  "data_root": "data",
+  "n_validation": 5000,
+  "n_train_after_split": 45000,
+  "validation_split_seed": 0,
+  "device": "cuda:0",
+  "torch_version": "2.10.0+cu126",
+  "torchvision_version": "0.25.0+cu126",
+  "initial_evaluation": true,
+  "train_eval_batch_size": 256,
+  "val_eval_batch_size": 256,
+  "test_eval_batch_size": 256,
+  "input_shape": [
+    3,
+    32,
+    32
+  ],
+  "input_dimension": 3072
+}

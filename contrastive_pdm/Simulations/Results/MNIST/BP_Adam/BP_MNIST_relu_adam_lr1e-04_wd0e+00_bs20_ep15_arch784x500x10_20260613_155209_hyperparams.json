@@ -1,0 +1,35 @@
+{
+  "run_id": "20260613_155209",
+  "experiment_name": "BP_MNIST_relu_adam_lr1e-04_wd0e+00_bs20_ep15_arch784x500x10",
+  "method": "backpropagation",
+  "dataset": "MNIST",
+  "n_trials": 5,
+  "seed_list": [
+    0,
+    10,
+    20,
+    30,
+    40
+  ],
+  "architecture": [
+    784,
+    500,
+    10
+  ],
+  "n_epochs": 15,
+  "batch_size": 20,
+  "hidden_activation": "relu",
+  "optimizer_name": "adam",
+  "lr": 0.0001,
+  "weight_decay": 0.0,
+  "data_root": "data",
+  "n_validation": 10000,
+  "n_train_after_split": 50000,
+  "validation_split_seed": 0,
+  "device": "cuda:0",
+  "torch_version": "2.10.0+cu126",
+  "initial_evaluation": true,
+  "train_eval_batch_size": 256,
+  "val_eval_batch_size": 256,
+  "test_eval_batch_size": 256
+}

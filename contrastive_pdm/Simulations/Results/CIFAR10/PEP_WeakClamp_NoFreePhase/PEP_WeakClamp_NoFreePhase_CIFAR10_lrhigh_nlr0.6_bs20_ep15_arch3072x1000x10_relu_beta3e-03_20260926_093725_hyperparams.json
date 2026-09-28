@@ -1,0 +1,64 @@
+{
+  "experiment_name": "PEP_WeakClamp_NoFreePhase_CIFAR10_lrhigh_nlr0.6_bs20_ep15_arch3072x1000x10_relu_beta3e-03",
+  "run_id": "20260926_093725",
+  "method": "PredictiveErrorPropagationWeakClampNoFreePhase",
+  "dataset": "CIFAR10",
+  "lr_config_idx": 2,
+  "lr_config_label": "high",
+  "n_validation": 5000,
+  "n_train_after_split": 45000,
+  "validation_split_seed": 0,
+  "n_trials": 5,
+  "seed_list": [
+    0,
+    10,
+    20,
+    30,
+    40
+  ],
+  "activation": "relu",
+  "use_gating": false,
+  "architecture": [
+    3072,
+    1000,
+    10
+  ],
+  "beta": 0.0025,
+  "gamma_forward": 0.5,
+  "gamma_backward": 0.5,
+  "lr_start_ff": [
+    0.02,
+    0.02
+  ],
+  "lr_start_fb": [
+    0.0002,
+    0.02
+  ],
+  "neural_lr_start": 0.6,
+  "neural_lr_stop": 0.02,
+  "neural_lr_rule": "divide_by_slow_loop_index",
+  "neural_lr_decay_multiplier": 0.01,
+  "neural_dynamic_iterations": 20,
+  "weight_decay": false,
+  "n_epochs": 15,
+  "batch_size": 20,
+  "normalization_mean": [
+    0.4914,
+    0.4822,
+    0.4465
+  ],
+  "normalization_std": [
+    0.6069,
+    0.5982,
+    0.603
+  ],
+  "input_shape": [
+    3,
+    32,
+    32
+  ],
+  "input_dimension": 3072,
+  "device": "xla:0",
+  "torch_version": "2.9.0+cpu",
+  "torchvision_version": "0.24.0+cpu"
+}

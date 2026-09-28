@@ -1,0 +1,417 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+import sys
+sys.path.append("../../src")
+
+from datetime import datetime
+import os
+import json
+import argparse
+
+import torch
+import torch.nn.functional as F
+import torchvision
+import numpy as np
+from tqdm import tqdm
+
+from torch_utils import set_all_seeds, get_device
+from activations import hard_sigmoid, get_activation, ACTIVATIONS
+from evaluate import evaluateContrastivePredictiveErrorPropagationWeakClamp
+from ContrastivePredictiveErrorPropagationWeakClamp import ContrastivePredictiveErrorPropagationWeakClamp
+
+
+# ---------------------------------------------------------
+# Command-line arguments (learning-rate / neural-lr ablation)
+# ---------------------------------------------------------
+# The synaptic learning rate is a per-layer dict of arrays, so we cannot pass it
+# as a single scalar. Instead we select it by index from a small set of
+# hand-tuned configurations. These are kept CLOSE to the values that are known to
+# train well -- moving far from them tends to break this algorithm.
+LR_START_CONFIGS = [
+    {"label": "low",  "ff": [0.7, 0.5], "fb": [0.10, 0.10]},
+    {"label": "base", "ff": [1.0, 0.7], "fb": [0.15, 0.15]},   # known-good defaults
+    {"label": "high", "ff": [1.3, 0.9], "fb": [0.20, 0.20]},
+]
+
+parser = argparse.ArgumentParser(
+    description="Contrastive Predictive Error Propagation (MNIST): "
+                "synaptic-LR / neural-LR ablation."
+)
+parser.add_argument(
+    "--lr-config-idx", "--lr_config_idx", type=int, default=1,
+    choices=range(len(LR_START_CONFIGS)),
+    help="Index into LR_START_CONFIGS (0=low, 1=base, 2=high).",
+)
+parser.add_argument(
+    "--neural-lr-start", "--neural_lr_start", type=float, default=1.0,
+    help="Initial neural-dynamics learning rate (sweep around 1.0).",
+)
+parser.add_argument(
+    "--activation", type=str, default="hard_sigmoid",
+    choices=sorted(ACTIVATIONS),
+    help="Neuron activation used in the neural dynamics (e.g. hard_sigmoid, relu).",
+)
+parser.add_argument(
+    "--gating", action="store_true",
+    help="Gate each phase's prediction error by g = f'(x) at that phase's post-synaptic state.",
+)
+parser.add_argument(
+    "--beta", type=float, default=0.05,
+    help="Nudge strength |beta|. Sign is randomized per batch unless --no-random-sign-beta.",
+)
+parser.add_argument(
+    "--no-random-sign-beta", action="store_true",
+    help="Use a fixed positive beta instead of randomizing the sign each batch.",
+)
+args = parser.parse_args()
+
+NEURAL_LR_START = args.neural_lr_start
+ACTIVATION_NAME = args.activation
+USE_GATING = args.gating
+BASE_BETA = args.beta
+USE_RANDOM_SIGN_BETA = not args.no_random_sign_beta
+# Keep (1/β)·lr invariant relative to |β|=0.05.
+BETA_REF = 0.05
+SYNAPTIC_LR_SCALE = BETA_REF
+if (not USE_RANDOM_SIGN_BETA) and BASE_BETA > 0:
+    SYNAPTIC_LR_SCALE *= float(BASE_BETA) / BETA_REF
+_base_lr = LR_START_CONFIGS[args.lr_config_idx]
+LR_CONFIG = {
+    "label": _base_lr["label"],
+    "ff": [v * SYNAPTIC_LR_SCALE for v in _base_lr["ff"]],
+    "fb": [v * SYNAPTIC_LR_SCALE for v in _base_lr["fb"]],
+}
+print(f"LR config [{args.lr_config_idx}] '{LR_CONFIG['label']}': "
+      f"ff={LR_CONFIG['ff']}, fb={LR_CONFIG['fb']} | neural_lr_start={NEURAL_LR_START}"
+      f" | synaptic_lr_scale={SYNAPTIC_LR_SCALE:g}")
+
+
+# ---------------------------------------------------------
+# Device
+# ---------------------------------------------------------
+device = get_device()
+print("Device:", device)
+
+
+# ---------------------------------------------------------
+# Data
+# ---------------------------------------------------------
+transform = torchvision.transforms.Compose([
+    torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize(mean=(0.0,), std=(1.0,))
+])
+
+mnist_dset_train = torchvision.datasets.MNIST(
+    "data",
+    train=True,
+    transform=transform,
+    target_transform=None,
+    download=True,
+)
+
+mnist_dset_test = torchvision.datasets.MNIST(
+    "data",
+    train=False,
+    transform=transform,
+    target_transform=None,
+    download=True,
+)
+
+# Train/validation/test split: 60k train -> 50k train / 10k validation, plus the
+# official 10k test set. The split seed is FIXED (not a trial seed) and matches the
+# BP scripts, so every algorithm/LR/trial sees the exact same three sets. Validation
+# is used for model selection (LR picking); the test set is never used for tuning.
+n_validation = 10000
+validation_split_seed = 0
+n_train = len(mnist_dset_train) - n_validation
+split_generator = torch.Generator().manual_seed(validation_split_seed)
+train_subset, val_subset = torch.utils.data.random_split(
+    mnist_dset_train, [n_train, n_validation], generator=split_generator
+)
+
+train_loader = torch.utils.data.DataLoader(
+    train_subset,
+    batch_size=20,
+    shuffle=True,
+    num_workers=0,
+)
+val_loader = torch.utils.data.DataLoader(
+    val_subset,
+    batch_size=20,
+    shuffle=False,
+    num_workers=0,
+)
+test_loader = torch.utils.data.DataLoader(
+    mnist_dset_test,
+    batch_size=20,
+    shuffle=False,
+    num_workers=0,
+)
+
+
+# ---------------------------------------------------------
+# Save paths
+# ---------------------------------------------------------
+results_dir = "../Results/MNIST/CPEP_WeakClamp"
+os.makedirs(results_dir, exist_ok=True)
+
+run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+nlr_str = f"{NEURAL_LR_START:g}"
+act_tag = "" if ACTIVATION_NAME == "hard_sigmoid" else f"_{ACTIVATION_NAME}"
+gate_tag = "_gated" if USE_GATING else ""
+if USE_RANDOM_SIGN_BETA and abs(BASE_BETA - 1.0) < 1e-12:
+    beta_tag = ""
+elif USE_RANDOM_SIGN_BETA:
+    beta_tag = f"_beta{BASE_BETA:.0e}_randsign"
+else:
+    beta_tag = f"_beta{BASE_BETA:.0e}"
+lrscale_tag = "_lrscaled" if SYNAPTIC_LR_SCALE != 1.0 else ""
+experiment_name = (
+    f"CPEP_WeakClamp_MNIST_lr{LR_CONFIG['label']}_nlr{nlr_str}_bs20_ep15_arch784x500x10{act_tag}{gate_tag}{beta_tag}{lrscale_tag}"
+)
+
+save_path = f"{results_dir}/{experiment_name}_{run_id}_accuracy_arrays.npz"
+hyperparam_path = f"{results_dir}/{experiment_name}_{run_id}_hyperparams.json"
+
+print("Saving results to:", save_path)
+print("Saving hyperparameters to:", hyperparam_path)
+
+
+# ---------------------------------------------------------
+# Experiment settings
+# ---------------------------------------------------------
+n_trials = 5
+seed_list = [10 * j for j in range(n_trials)]
+
+trn_acc_list_of_list = []
+val_acc_list_of_list = []
+tst_acc_list_of_list = []
+
+
+# ---------------------------------------------------------
+# Trials
+# ---------------------------------------------------------
+for trial_ in range(n_trials):
+
+    set_all_seeds(seed_list[trial_])
+
+    activation = get_activation(ACTIVATION_NAME)
+    architecture = [784, 500, 10]
+
+    base_beta = BASE_BETA
+    gamma_forward = 0.5
+    gamma_backward = 0.5
+    lr_start = {
+        "ff": np.array(LR_CONFIG["ff"], dtype=float),
+        "fb": np.array(LR_CONFIG["fb"], dtype=float),
+    }
+
+    neural_lr_start = NEURAL_LR_START
+    neural_lr_stop = 0.02
+    neural_lr_rule = "divide_by_slow_loop_index"
+    neural_lr_decay_multiplier = 0.01
+    neural_dynamic_iterations_nudged = 10
+    neural_dynamic_iterations_free = 30
+
+    use_random_sign_beta = USE_RANDOM_SIGN_BETA
+    weight_decay = False
+
+    n_epochs = 15
+
+    model = ContrastivePredictiveErrorPropagationWeakClamp(
+        architecture=architecture,
+        gamma_forward=gamma_forward,
+        gamma_backward=gamma_backward,
+        activation=activation,
+        use_gating=USE_GATING,
+        device=device,
+    )
+
+    train_acc0 = evaluateContrastivePredictiveErrorPropagationWeakClamp(
+        model,
+        train_loader,
+        neural_lr_start,
+        neural_lr_stop,
+        neural_lr_rule,
+        neural_lr_decay_multiplier,
+        neural_dynamic_iterations_free,
+        device,
+    )
+
+    val_acc0 = evaluateContrastivePredictiveErrorPropagationWeakClamp(
+        model,
+        val_loader,
+        neural_lr_start,
+        neural_lr_stop,
+        neural_lr_rule,
+        neural_lr_decay_multiplier,
+        neural_dynamic_iterations_free,
+        device,
+    )
+
+    test_acc0 = evaluateContrastivePredictiveErrorPropagationWeakClamp(
+        model,
+        test_loader,
+        neural_lr_start,
+        neural_lr_stop,
+        neural_lr_rule,
+        neural_lr_decay_multiplier,
+        neural_dynamic_iterations_free,
+        device,
+    )
+
+    trn_acc_list = [train_acc0]
+    val_acc_list = [val_acc0]
+    tst_acc_list = [test_acc0]
+
+    if trial_ == 0:
+        hyperparams = {
+            "experiment_name": experiment_name,
+            "run_id": run_id,
+            "method": "ContrastivePredictiveErrorPropagationWeakClamp",
+            "dataset": "MNIST",
+            "lr_config_idx": args.lr_config_idx,
+            "lr_config_label": LR_CONFIG["label"],
+            "n_validation": n_validation,
+            "n_train_after_split": n_train,
+            "validation_split_seed": validation_split_seed,
+            "n_trials": n_trials,
+            "seed_list": seed_list,
+            "activation": ACTIVATION_NAME,
+            "use_gating": USE_GATING,
+            "architecture": architecture,
+            "beta": base_beta,
+            "gamma_forward": gamma_forward,
+            "gamma_backward": gamma_backward,
+            "lr_start_ff": lr_start["ff"].tolist(),
+            "lr_start_fb": lr_start["fb"].tolist(),
+            "neural_lr_start": neural_lr_start,
+            "neural_lr_stop": neural_lr_stop,
+            "neural_lr_rule": neural_lr_rule,
+            "neural_lr_decay_multiplier": neural_lr_decay_multiplier,
+            "neural_dynamic_iterations_nudged": neural_dynamic_iterations_nudged,
+            "neural_dynamic_iterations_free": neural_dynamic_iterations_free,
+            "use_random_sign_beta": use_random_sign_beta,
+            "synaptic_lr_scale": SYNAPTIC_LR_SCALE,
+            "weight_decay": weight_decay,
+            "n_epochs": n_epochs,
+            "batch_size": train_loader.batch_size,
+            "normalization_mean": [0.0],
+            "normalization_std": [1.0],
+            "device": str(device),
+            "torch_version": torch.__version__,
+            "torchvision_version": torchvision.__version__,
+        }
+
+        with open(hyperparam_path, "w") as f:
+            json.dump(hyperparams, f, indent=2)
+
+    for epoch_ in range(n_epochs):
+
+        if epoch_ < 20:
+            lr = {
+                "ff": lr_start["ff"] * (0.95) ** epoch_,
+                "fb": lr_start["fb"] * (0.95) ** epoch_,
+            }
+        else:
+            lr = {
+                "ff": lr_start["ff"] * (0.9) ** epoch_,
+                "fb": lr_start["fb"] * (0.9) ** epoch_,
+            }
+
+        for idx, (x, y) in tqdm(enumerate(train_loader), total=len(train_loader)):
+
+            x, y = x.to(device), y.to(device)
+            x = x.view(x.size(0), -1).T
+            y_one_hot = F.one_hot(y, 10).to(device).T.float()
+
+            take_debug_logs_ = (idx % 500 == 0)
+
+            if use_random_sign_beta:
+                beta_batch = (2 * np.random.randint(2) - 1) * base_beta
+            else:
+                beta_batch = base_beta
+
+            neurons = model.batch_step_hopfield(
+                x,
+                y_one_hot,
+                lr,
+                neural_lr_start,
+                neural_lr_stop,
+                neural_lr_rule,
+                neural_lr_decay_multiplier,
+                neural_dynamic_iterations_free,
+                neural_dynamic_iterations_nudged,
+                beta_batch,
+                take_debug_logs_,
+                weight_decay,
+            )
+
+        trn_acc = evaluateContrastivePredictiveErrorPropagationWeakClamp(
+            model,
+            train_loader,
+            neural_lr_start,
+            neural_lr_stop,
+            neural_lr_rule,
+            neural_lr_decay_multiplier,
+            neural_dynamic_iterations_free,
+            device,
+            printing=False,
+        )
+
+        val_acc = evaluateContrastivePredictiveErrorPropagationWeakClamp(
+            model,
+            val_loader,
+            neural_lr_start,
+            neural_lr_stop,
+            neural_lr_rule,
+            neural_lr_decay_multiplier,
+            neural_dynamic_iterations_free,
+            device,
+            printing=False,
+        )
+
+        tst_acc = evaluateContrastivePredictiveErrorPropagationWeakClamp(
+            model,
+            test_loader,
+            neural_lr_start,
+            neural_lr_stop,
+            neural_lr_rule,
+            neural_lr_decay_multiplier,
+            neural_dynamic_iterations_free,
+            device,
+            printing=False,
+        )
+
+        trn_acc_list.append(trn_acc)
+        val_acc_list.append(val_acc)
+        tst_acc_list.append(tst_acc)
+
+        print(
+            "Trial : {}, Epoch : {}, Train Accuracy : {}, Val Accuracy : {}, Test Accuracy : {}".format(
+                trial_ + 1,
+                epoch_ + 1,
+                trn_acc,
+                val_acc,
+                tst_acc,
+            )
+        )
+
+    trn_acc_list_of_list.append(trn_acc_list)
+    val_acc_list_of_list.append(val_acc_list)
+    tst_acc_list_of_list.append(tst_acc_list)
+
+    np.savez_compressed(
+        save_path,
+        seed_list=np.asarray(seed_list[:len(trn_acc_list_of_list)]),
+        trn_acc=np.asarray(trn_acc_list_of_list, dtype=float),
+        val_acc=np.asarray(val_acc_list_of_list, dtype=float),
+        test_acc=np.asarray(tst_acc_list_of_list, dtype=float),
+    )
+
+print("Saved results to:", save_path)
+print("Saved hyperparameters to:", hyperparam_path)
+print("Train accuracy array shape:", np.asarray(trn_acc_list_of_list, dtype=float).shape)
+print("Val accuracy array shape:", np.asarray(val_acc_list_of_list, dtype=float).shape)
+print("Test accuracy array shape:", np.asarray(tst_acc_list_of_list, dtype=float).shape)
