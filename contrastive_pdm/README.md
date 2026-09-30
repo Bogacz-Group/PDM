@@ -90,3 +90,13 @@ bash run_pdm_sweep_tpu.sh --dataset CIFAR10
 ```
 
 The script took no more than 48 hours for each dataset.
+
+## 4. Command-line options
+
+Training settings are passed as flags as standard. The example command below is 
+for the MNIST contrastive weak-clamp setting in the table, and must be launched 
+from `Simulations/MNIST`:
+
+```bash
+python ContrastivePredictiveErrorPropagationWeakClamp_experiment.py --lr-config-idx 1 --neural-lr-start 1.6 --activation relu --beta 0.05 --no-random-sign-beta
+```
