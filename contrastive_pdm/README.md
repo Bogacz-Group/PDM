@@ -44,9 +44,12 @@ To retrain the runs those figures are drawn from, from `Simulations/`:
 
 ```bash
 bash run_ablation_sweep.sh
+bash run_bp_sweep.sh
 ```
 
-The sweep retrains only the settings `plot_results.py` selects, not the rest of either learning-rate grid. The predictive dendrite runs use ReLU, with β `0.05` on MNIST and `0.0025` on CIFAR-10.
+`run_bp_sweep.sh` retrains the backprop and fixed-input-weight learning-rate grids, one run at a time. It does not request a GPU. The training code uses CUDA when it is available, and the CPU otherwise. No change to the Python is required for a CPU run.
+
+`run_ablation_sweep.sh` retrains only the settings `plot_results.py` selects, not the rest of either learning-rate grid. The predictive dendrite runs use ReLU, with β `0.05` on MNIST and `0.0025` on CIFAR-10.
 
 | Dataset | Model | Selected setting |
 |---|---|---|
